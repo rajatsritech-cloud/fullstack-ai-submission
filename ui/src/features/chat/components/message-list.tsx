@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMessages, type StreamingState } from "../hooks/use-messages";
-import { MessageBubble } from "./message-bubble";
+import { MessageBubble, SourcesList } from "./message-bubble";
 
 type MessageListProps = {
   conversationId: string | null;
@@ -37,9 +37,11 @@ function MessageListSkeleton() {
 function StreamingBubble({
   content,
   toolName,
+  sources,
 }: {
   content: string;
   toolName: string | null;
+  sources: StreamingState["streamingSources"];
 }) {
   return (
     <div className="flex w-full justify-start">
@@ -66,6 +68,9 @@ function StreamingBubble({
               <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:300ms]" />
             </div>
           )}
+          <div className="mt-1">
+             <SourcesList sources={sources} />
+          </div>
         </div>
       </div>
     </div>
@@ -104,6 +109,7 @@ export function MessageList({ conversationId, streaming, onScroll }: MessageList
           <StreamingBubble
             content={streaming.streamingContent}
             toolName={streaming.streamingTool}
+            sources={streaming.streamingSources}
           />
         )}
 

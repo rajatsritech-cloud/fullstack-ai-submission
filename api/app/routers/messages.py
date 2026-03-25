@@ -80,14 +80,13 @@ async def send_message(conversation_id: str, payload: MessageCreate):
     # Pass all chunks untruncated so the frontend can render full citations in a Sheet
     sources = []
     for r in rag_results:
-        if r["score"] > 0.25:
-            sources.append(
-                Source(
-                    document=r["document"],
-                    chunk=r["chunk"],  # Full text for UI citation highlighter
-                    score=r["score"],
-                )
+        sources.append(
+            Source(
+                document=r["document"],
+                chunk=r["chunk"],  # Full text for UI citation highlighter
+                score=r["score"],
             )
+        )
 
     # Build context-augmented prompt
     rag_context = _build_rag_context(rag_results)
@@ -179,7 +178,7 @@ async def send_message(conversation_id: str, payload: MessageCreate):
                 conversation_id,
                 role="assistant",
                 content=total_content,
-                sources=sources if sources else None,
+                sources=sources,
             )
             yield _sse("done", assistant_message.model_dump_json())
 

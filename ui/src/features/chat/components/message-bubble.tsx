@@ -17,7 +17,7 @@ type MessageBubbleProps = {
   message: Message;
 };
 
-function SourcesList({ sources }: { sources: Message["sources"] }) {
+export function SourcesList({ sources }: { sources: Message["sources"] }) {
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
 
   if (!sources?.length) return null;
