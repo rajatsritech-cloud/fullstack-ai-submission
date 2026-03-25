@@ -19,11 +19,11 @@ poetry install
 To start the server, just run this command in the `api` folder:
 
 ```powershell
-python -m poetry run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+python -m poetry run uvicorn app.main:app --reload --host localhost --port 8000
 ```
 
--   The server will start at `http://127.0.0.1:8000`.
--   **API Documentation**: You can see all endpoints at `http://127.0.0.1:8000/docs`.
+-   The server will start at `http://localhost:8000`.
+-   **API Documentation**: You can see all endpoints at `http://localhost:8000/docs`.
 
 ## 📂 Document Ingestion
 

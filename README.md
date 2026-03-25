@@ -41,7 +41,7 @@ Or run individually:
 
 ```bash
 cd ui && npm install && npm run dev          # Frontend (Vite)
-cd api && poetry install && python -m poetry run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000  # Backend (FastAPI)
+cd api && poetry install && python -m poetry run uvicorn app.main:app --reload --host localhost --port 8000  # Backend (FastAPI)
 ```
 
 ---
