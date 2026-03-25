@@ -25,5 +25,5 @@ class MessageResponse(BaseModel):
 class StreamEvent(BaseModel):
     """SSE event payload sent to the client during streaming."""
 
-    event: Literal["token", "sources", "done", "error"]
+    event: Literal["token", "sources", "done", "error", "tool_call"]
     data: str | list[Source] | MessageResponse | None = None

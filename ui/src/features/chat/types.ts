@@ -33,6 +33,7 @@ export type CreateConversationPayload = {
 export type StreamEvents = {
   token: string;
   sources: Source[];
+  tool_call: { name: string };
   done: Message;
   error: string;
 };

@@ -18,6 +18,7 @@ export type StreamingState = {
   isStreaming: boolean;
   streamingContent: string;
   streamingSources: Source[];
+  streamingTool: string | null;
 };
 
 export function useStreamMessage() {
@@ -28,6 +29,7 @@ export function useStreamMessage() {
     isStreaming: false,
     streamingContent: "",
     streamingSources: [],
+    streamingTool: null,
   });
 
   const send = useCallback(
@@ -54,6 +56,7 @@ export function useStreamMessage() {
         isStreaming: true,
         streamingContent: "",
         streamingSources: [],
+        streamingTool: null,
       });
 
       let accumulated = "";
@@ -67,12 +70,19 @@ export function useStreamMessage() {
             setStreamingState((prev) => ({
               ...prev,
               streamingContent: accumulated,
+              streamingTool: null,
             }));
           },
           sources: (sources) => {
             setStreamingState((prev) => ({
               ...prev,
               streamingSources: sources,
+            }));
+          },
+          tool_call: (data) => {
+            setStreamingState((prev) => ({
+              ...prev,
+              streamingTool: data.name,
             }));
           },
           done: (finalMessage) => {
@@ -86,6 +96,7 @@ export function useStreamMessage() {
               isStreaming: false,
               streamingContent: "",
               streamingSources: [],
+              streamingTool: null,
             });
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
           },
@@ -95,6 +106,7 @@ export function useStreamMessage() {
               isStreaming: false,
               streamingContent: "",
               streamingSources: [],
+              streamingTool: null,
             });
           },
         },
@@ -110,6 +122,7 @@ export function useStreamMessage() {
       isStreaming: false,
       streamingContent: "",
       streamingSources: [],
+      streamingTool: null,
     });
   }, []);
 

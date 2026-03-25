@@ -1,0 +1,23 @@
+# Local Databases / Vector Stores
+chroma_db/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# Environment Variables (SENSITIVE)
+.env
+
+# Tool Specific
+.ipynb_checkpoints/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# OS Specific
+.DS_Store
+Thumbs.db

@@ -13,7 +13,8 @@ if not _token or _token.strip() == "":
     print(
         "\n"
         "╔══════════════════════════════════════════════════════════════╗\n"
-        "║  ERROR: GITHUB_ACCESS_TOKEN is not set.                      ║\n"
+        "║  WARNING: GITHUB_ACCESS_TOKEN is not set.                    ║\n"
+        "║  GitHub tool calling will not work until you add it.         ║\n"
         "║                                                              ║\n"
         "║  1. Create a PAT at https://github.com/settings/tokens       ║\n"
         "║     (needs 'repo' and 'read:org' scopes)                     ║\n"
@@ -23,14 +24,15 @@ if not _token or _token.strip() == "":
         "╚══════════════════════════════════════════════════════════════╝\n",
         file=sys.stderr,
     )
-    sys.exit(1)
+    _token = None
 
 _BASE_URL = "https://api.github.com"
 _headers = {
-    "Authorization": f"Bearer {_token}",
     "Accept": "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
 }
+if _token:
+    _headers["Authorization"] = f"Bearer {_token}"
 
 
 async def _client() -> AsyncClient:

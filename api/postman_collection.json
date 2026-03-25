@@ -1,0 +1,173 @@
+{
+  "info": {
+    "name": "Acme Chatbot API",
+    "description": "Fullstack Interview Template End-to-End Test Collection for RAG and Tool Calling",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Admin",
+      "item": [
+        {
+          "name": "Ingest Knowledge Base",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/admin/ingest",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["admin", "ingest"]
+            },
+            "description": "Run this once to parse the `knowledge/` folder markdown files into the persistent ChromaDB state."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Conversations",
+      "item": [
+        {
+          "name": "List Conversations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/conversations",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["conversations"]
+            }
+          }
+        },
+        {
+          "name": "Create Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"conversation_id\", jsonData.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"E2E Test Chat\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/conversations",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["conversations"]
+            },
+            "description": "Creates a chat and saves the ID to Postman environment variables."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Chat Messages (SSE)",
+      "item": [
+        {
+          "name": "Use Case 1 (RAG)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"content\": \"What is the rate limit for the Professional plan?\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/conversations/{{conversation_id}}/messages",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["conversations", "{{conversation_id}}", "messages"]
+            },
+            "description": "Tests chunk retrieval from ChromaDB."
+          }
+        },
+        {
+          "name": "Use Case 2 (Tool Calling)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"content\": \"Find me a good Python library for rate limiting on GitHub.\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/conversations/{{conversation_id}}/messages",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["conversations", "{{conversation_id}}", "messages"]
+            },
+            "description": "Tests OpenAI deciding to use the GITHUB_TOOLS schema and performing a sequential loop."
+          }
+        },
+        {
+          "name": "Use Case 3 (Combined)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"content\": \"Our documentation says we use Debezium for CDC. Are there any newer alternatives on GitHub? Compare them.\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8000/conversations/{{conversation_id}}/messages",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["conversations", "{{conversation_id}}", "messages"]
+            },
+            "description": "Aggressively tests both RAG context fetching and Tool execution simultaneously."
+          }
+        }
+      ]
+    }
+  ]
+}

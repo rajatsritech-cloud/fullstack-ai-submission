@@ -1,4 +1,6 @@
-import { MessageSquarePlus, Trash2 } from "lucide-react"
+import { useState } from "react"
+import { createPortal } from "react-dom"
+import { SquarePen, Trash2, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Sidebar,
@@ -11,6 +13,8 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -22,7 +26,7 @@ import type { Conversation } from "../types"
 
 type ChatSidebarProps = {
   activeConversationId: string | null
-  onSelectConversation: (id: string) => void
+  onSelectConversation: (id: string | null) => void
 }
 
 function ConversationItem({
@@ -36,21 +40,44 @@ function ConversationItem({
   onSelect: () => void
   onDelete: () => void
 }) {
+  const [showConfirm, setShowConfirm] = useState(false)
+
   return (
+    <>
     <SidebarMenuItem>
-      <SidebarMenuButton isActive={isActive} onClick={onSelect}>
-        <span className="truncate">{conversation.title || "New Chat"}</span>
+      <SidebarMenuButton isActive={isActive} onClick={onSelect} className="text-[13.5px] py-1.5 h-auto">
+        <MessageSquare className="mr-2 size-3.5 opacity-60" />
+        <span className="truncate font-medium">{conversation.title || "New Chat"}</span>
       </SidebarMenuButton>
       <SidebarMenuAction
         onClick={(e) => {
           e.stopPropagation()
-          onDelete()
+          setShowConfirm(true)
         }}
-        className="opacity-0 group-hover/menu-item:opacity-100"
+        className="opacity-0 group-hover/menu-item:opacity-100 dark:hover:bg-white/10 cursor-pointer"
       >
-        <Trash2 className="size-3.5" />
+        <Trash2 className="size-3.5 text-muted-foreground" />
       </SidebarMenuAction>
     </SidebarMenuItem>
+
+    {showConfirm && typeof document !== "undefined" && createPortal(
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/20 dark:bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200">
+         <div className="bg-background border border-border/50 shadow-2xl rounded-2xl w-[320px] p-5 flex flex-col gap-4 animate-in zoom-in-95 duration-200">
+            <div>
+               <h3 className="font-semibold text-[17px] text-foreground">Delete chat?</h3>
+               <p className="text-[14.5px] text-muted-foreground mt-1.5 leading-relaxed">
+                  This will delete <strong className="text-foreground font-medium">"{conversation.title || "New Chat"}"</strong>.
+               </p>
+            </div>
+            <div className="flex w-full gap-2 items-center justify-end mt-2">
+               <Button variant="ghost" onClick={(e) => { e.stopPropagation(); setShowConfirm(false); }} className="rounded-xl px-5 h-9 font-medium text-[14.5px]">Cancel</Button>
+               <Button variant="destructive" onClick={(e) => { e.stopPropagation(); setShowConfirm(false); onDelete(); }} className="rounded-xl px-5 h-9 font-medium text-[14.5px] bg-[#e53e3e] hover:bg-[#c53030] text-white">Delete</Button>
+            </div>
+         </div>
+      </div>,
+      document.body
+    )}
+    </>
   )
 }
 
@@ -71,29 +98,24 @@ export function ChatSidebar({
   const { data: conversations, isLoading } = useConversations()
   const createConversation = useCreateConversation()
   const deleteConversation = useDeleteConversation()
+  const { state } = useSidebar()
 
-  const handleNewChat = async () => {
-    const conversation = await createConversation.mutateAsync({})
-    onSelectConversation(conversation.id)
+  const handleNewChat = () => {
+    onSelectConversation(null)
   }
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center justify-between px-2 py-1">
-          <span className="text-sm font-semibold">Chats</span>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={handleNewChat}
-            disabled={createConversation.isPending}
-          >
-            <MessageSquarePlus className="size-4" />
-          </Button>
+    <Sidebar collapsible="icon" className="border-r-0 bg-[#f9f9f9] dark:bg-[#171717]">
+      <SidebarHeader className="p-2">
+        <div className={`flex items-center justify-between gap-1 overflow-hidden ${state === "collapsed" ? "flex-col" : "flex-row"}`}>
+           <SidebarTrigger className="text-muted-foreground hover:bg-black/5 dark:hover:bg-white/10 size-9 [&_svg]:size-5" />
+           <Button variant="ghost" size="icon" onClick={handleNewChat} disabled={createConversation.isPending} className="text-muted-foreground hover:bg-black/5 dark:hover:bg-white/10 size-9">
+              <SquarePen className="size-5" />
+           </Button>
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="group-data-[collapsible=icon]:hidden">
         <SidebarGroup>
           <SidebarGroupLabel>Recent</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -107,11 +129,16 @@ export function ChatSidebar({
                     conversation={conversation}
                     isActive={conversation.id === activeConversationId}
                     onSelect={() => onSelectConversation(conversation.id)}
-                    onDelete={() => deleteConversation.mutate(conversation.id)}
+                    onDelete={() => {
+                        deleteConversation.mutate(conversation.id)
+                        if (conversation.id === activeConversationId) {
+                           onSelectConversation(null)
+                        }
+                    }}
                   />
                 ))}
                 {conversations?.length === 0 && (
-                  <p className="px-2 py-4 text-center text-xs text-muted-foreground">
+                  <p className="px-2 py-4 text-center text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
                     No conversations yet
                   </p>
                 )}
