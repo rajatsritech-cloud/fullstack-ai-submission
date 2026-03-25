@@ -119,7 +119,7 @@ function ChatHeader({ onShare, onDelete, isScrolled }: { onShare: () => void, on
               <span className="text-[15px] font-bold tracking-tight leading-none">Cortex AI</span>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="size-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)] animate-pulse" />
-                <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground/70">GPT-4o</span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground/70">GPT-4o-mini</span>
               </div>
             </div>
             <ChevronDown className={`size-3.5 text-muted-foreground/50 transition-transform duration-300 ${isAssistantMenuOpen ? "rotate-180" : ""}`} />
@@ -133,7 +133,7 @@ function ChatHeader({ onShare, onDelete, isScrolled }: { onShare: () => void, on
                   <Sparkles className="size-4" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[14.5px] font-medium leading-none">Cortex (GPT-4o)</span>
+                  <span className="text-[14.5px] font-medium leading-none">Cortex (GPT-4o-mini)</span>
                   <span className="text-[11px] text-muted-foreground mt-1.5 leading-tight italic">
                     Optimized for deep reasoning and GitHub integration.
                   </span>
