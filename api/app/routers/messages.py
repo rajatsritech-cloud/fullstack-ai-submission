@@ -82,10 +82,15 @@ async def send_message(conversation_id: str, payload: MessageCreate):
     # Build context-augmented prompt
     rag_context = _build_rag_context(rag_results)
 
-    # ── Build message history ──────────────────────────────────────
+    # ── Build message history (Sliding Window — Enterprise TPM Safety) ────
+    # Send only the last N messages to the LLM to prevent token overflow.
+    # Full history is retained in the Store for UI display/audit purposes.
+    MAX_HISTORY_MESSAGES = 10
     history = store.list_messages(conversation_id)
+    windowed_history = history[-MAX_HISTORY_MESSAGES:]
+
     messages = [{"role": "system", "content": SYSTEM_PROMPT.format(rag_context=rag_context)}] + [
-        {"role": m.role, "content": m.content} for m in history
+        {"role": m.role, "content": m.content} for m in windowed_history
     ]
 
     async def event_stream():
