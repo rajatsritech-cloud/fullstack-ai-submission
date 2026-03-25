@@ -2,6 +2,8 @@ import json
 import logging
 from httpx import HTTPStatusError
 
+from app.config import GITHUB_FILE_MAX_CHARS
+
 from app.services.github import search_repos, search_files, get_file_content
 
 logger = logging.getLogger(__name__)
@@ -103,9 +105,8 @@ async def execute_github_tool(name: str, arguments_json: str) -> str:
             content = result.get("content", "")
             
             # Context window protection: truncate extremely large files
-            max_len = 5000
-            if len(content) > max_len:
-                content = content[:max_len] + f"\n... [Truncated, original size: {len(content)} chars]"
+            if len(content) > GITHUB_FILE_MAX_CHARS:
+                content = content[:GITHUB_FILE_MAX_CHARS] + f"\n... [Truncated, original size: {len(content)} chars]"
             return content
             
         else:

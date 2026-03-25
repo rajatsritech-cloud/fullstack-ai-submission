@@ -8,7 +8,7 @@ I have designed and built **Cortex AI**, a production-grade, highly-deterministi
 
 **Backend (FastAPI - Enterprise Python):**
 1. Navigate to the `api` directory and install dependencies: `poetry install`.
-2. Create a `.env` file containing your `OPENAI_API_KEY` and `GITHUB_ACCESS_TOKEN`.
+2. Copy `.env.example` to `.env` and fill in your `OPENAI_API_KEY` and `GITHUB_ACCESS_TOKEN`. All other parameters (model, RAG thresholds, history window) have sensible defaults and can be tuned via environment variables — see `app/config.py`.
 3. Start the application server:
    `python -m poetry run uvicorn app.main:app --reload --host localhost --port 8000`
    *(Note: The server includes an Enterprise **Lifespan Boot Handler**. It will automatically download and pre-load the highly efficient ~30MB HuggingFace cross-encoder model directly into RAM during startup to prevent "Cold Start" lag for the first user).*

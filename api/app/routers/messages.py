@@ -1,8 +1,17 @@
+import asyncio
 import json
+import math
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
+from app.config import (
+    OPENAI_MODEL,
+    RAG_TOP_K,
+    RAG_CONFIDENCE_THRESHOLD,
+    RAG_LOGIT_BIAS,
+    MAX_HISTORY_MESSAGES,
+)
 from app.models.message import MessageCreate, MessageResponse, Source
 from app.services.openai import client as openai_client
 from app.services.rag import retrieve
@@ -54,15 +63,13 @@ async def send_message(conversation_id: str, payload: MessageCreate):
 
     # ── RAG Retrieval ──────────────────────────────────────────────
     user_query = payload.content
-    rag_results = retrieve(user_query, top_k=5)
+    rag_results = retrieve(user_query, top_k=RAG_TOP_K)
 
     # Pass all chunks untruncated so the frontend can render full citations in a Sheet
     def sigmoid(x: float) -> float:
-        import math
-
         # Shift the logit to be more 'generous' for a professional UI (Confidence Calibration)
         # A raw logit of -2.0 becomes ~99% confidence with a +8.0 bias
-        return 1 / (1 + math.exp(-(x + 8.0)))
+        return 1 / (1 + math.exp(-(x + RAG_LOGIT_BIAS)))
 
     sources = []
     for r in rag_results:
@@ -70,7 +77,7 @@ async def send_message(conversation_id: str, payload: MessageCreate):
         normalized_score = sigmoid(r["score"])
 
         # Enterprise Threshold: Only inject and cite sources with > 50% confidence
-        if normalized_score > 0.50:
+        if normalized_score > RAG_CONFIDENCE_THRESHOLD:
             sources.append(
                 Source(
                     document=r["document"],
@@ -85,7 +92,6 @@ async def send_message(conversation_id: str, payload: MessageCreate):
     # ── Build message history (Sliding Window — Enterprise TPM Safety) ────
     # Send only the last N messages to the LLM to prevent token overflow.
     # Full history is retained in the Store for UI display/audit purposes.
-    MAX_HISTORY_MESSAGES = 10
     history = store.list_messages(conversation_id)
     windowed_history = history[-MAX_HISTORY_MESSAGES:]
 
@@ -115,7 +121,7 @@ async def send_message(conversation_id: str, payload: MessageCreate):
 
             while tool_call_loop_active:
                 stream = openai_client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model=OPENAI_MODEL,
                     messages=messages,
                     tools=GITHUB_TOOLS,
                     stream=True,
@@ -150,7 +156,6 @@ async def send_message(conversation_id: str, payload: MessageCreate):
                         yield _sse("token", json.dumps(delta.content))
 
                 if tool_calls_buffer:
-                    import asyncio
 
                     # Execute tools
                     tool_calls_list = [v for k, v in sorted(tool_calls_buffer.items())]
