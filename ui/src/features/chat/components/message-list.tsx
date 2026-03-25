@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMessages, type StreamingState } from "../hooks/use-messages";
-import { MessageBubble, SourcesList } from "./message-bubble";
+import { MessageBubble } from "./message-bubble";
 
 type MessageListProps = {
   conversationId: string | null;
@@ -32,16 +32,12 @@ function MessageListSkeleton() {
   );
 }
 
-
-
 function StreamingBubble({
   content,
   toolName,
-  sources,
 }: {
   content: string;
   toolName: string | null;
-  sources: StreamingState["streamingSources"];
 }) {
   return (
     <div className="flex w-full justify-start">
@@ -53,10 +49,10 @@ function StreamingBubble({
         </Avatar>
         <div className="flex-1 min-w-0 pt-1 text-[15px] text-foreground">
           {toolName ? (
-             <div className="flex items-center gap-2.5 text-muted-foreground">
-               <Settings2 className="size-4 animate-spin text-primary" />
-               <span className="font-medium animate-pulse">Running {toolName}...</span>
-             </div>
+            <div className="flex items-center gap-2.5 text-muted-foreground">
+              <Settings2 className="size-4 animate-spin text-primary" />
+              <span className="font-medium animate-pulse">Running {toolName}...</span>
+            </div>
           ) : content ? (
             <div className="prose dark:prose-invert prose-p:leading-relaxed max-w-none prose-pre:p-0 prose-pre:bg-[#f4f4f4] dark:prose-pre:bg-[#2f2f2f] prose-a:text-primary">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
@@ -68,9 +64,6 @@ function StreamingBubble({
               <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground/50 [animation-delay:300ms]" />
             </div>
           )}
-          <div className="mt-1">
-             <SourcesList sources={sources} />
-          </div>
         </div>
       </div>
     </div>
@@ -109,7 +102,6 @@ export function MessageList({ conversationId, streaming, onScroll }: MessageList
           <StreamingBubble
             content={streaming.streamingContent}
             toolName={streaming.streamingTool}
-            sources={streaming.streamingSources}
           />
         )}
 

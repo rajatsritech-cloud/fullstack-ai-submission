@@ -19,7 +19,7 @@ from sentence_transformers import SentenceTransformer, CrossEncoder
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 RERANK_MODEL = "cross-encoder/ms-marco-TinyBERT-L-2-v2" # Tiny 30MB model, instant download
 MAX_CHUNK_SIZE = 500        # characters
-CHUNK_OVERLAP = 50          # characters of overlap between paragraph splits
+CHUNK_OVERLAP = 0           # Set to 0 for clean, human-readable citation starts in the UI
 COLLECTION_NAME = "knowledge_base"
 
 # ── Module-level singletons (initialized on first call) ────────────────
@@ -211,6 +211,7 @@ def retrieve(query: str, top_k: int = 5) -> list[dict]:
     if _collection is None:
         try:
             abs_dir = os.path.dirname(os.path.abspath(__file__))
+            # Path: api/app/services/rag.py -> root/chroma_db
             db_path = os.path.join(abs_dir, "..", "..", "..", "chroma_db")
             if os.path.exists(db_path):
                 client = chromadb.PersistentClient(path=db_path)

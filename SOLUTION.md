@@ -10,7 +10,7 @@ I have built **Cortex AI**, a professional chatbot that handles document search 
 1.  Open the `api` folder and run `poetry install`.
 2.  Create an `.env` file in the `api` folder with your `OPENAI_API_KEY` and `GITHUB_ACCESS_TOKEN`.
 3.  Start the server: 
-    `python -m poetry run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000`
+    `python -m poetry run uvicorn app.main:app --reload --host localhost --port 8000`
 4.  **Important**: Run the ingestion once to index your documents:
     `POST http://127.0.0.1:8000/admin/ingest`
 

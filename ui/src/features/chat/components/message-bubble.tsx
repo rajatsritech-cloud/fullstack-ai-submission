@@ -51,12 +51,15 @@ export function SourcesList({ sources }: { sources: Message["sources"] }) {
           
           <div className="flex flex-col gap-6">
              {viewSources.map((source, idx) => (
-                <div key={idx} className="bg-muted/40 rounded-xl p-4 border border-black/5 dark:border-white/10 relative shadow-sm">
-                   <div className="absolute top-0 right-0 bg-background/80 backdrop-blur-sm text-[10px] px-2 py-1 rounded-bl-xl rounded-tr-xl border-b border-l border-black/5 dark:border-white/10 text-muted-foreground font-medium">
+                <div key={idx} className="bg-white dark:bg-[#1a1a1a] rounded-xl p-5 border border-black/5 dark:border-white/10 relative shadow-sm overflow-hidden group">
+                   <div className="absolute top-0 right-0 bg-black/5 dark:bg-white/10 backdrop-blur-md text-[10px] px-2.5 py-1.5 rounded-bl-xl text-muted-foreground font-semibold z-10">
                       Match Score: {(source.score * 100).toFixed(1)}%
                    </div>
-                   <div className="prose dark:prose-invert prose-sm prose-p:leading-relaxed max-w-none text-foreground prose-pre:bg-background/80 border-none pt-2">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{source.chunk}</ReactMarkdown>
+                   <div className="prose dark:prose-invert prose-sm max-w-full pt-4 overflow-x-auto 
+                       [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-black/10 dark:[&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
+                      <div className="text-foreground font-normal leading-relaxed">
+                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{source.chunk}</ReactMarkdown>
+                      </div>
                    </div>
                 </div>
              ))}
@@ -104,12 +107,17 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <div className="prose dark:prose-invert prose-p:leading-relaxed text-[15px] text-foreground max-w-none prose-pre:p-0 prose-pre:bg-[#f4f4f4] dark:prose-pre:bg-[#2f2f2f] prose-a:text-primary">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <div className="prose dark:prose-invert prose-p:leading-relaxed text-[15px] text-foreground max-w-none 
+                prose-code:text-black dark:prose-code:text-white prose-code:font-semibold prose-code:before:content-none prose-code:after:content-none 
+                prose-pre:p-4 prose-pre:bg-[#f4f4f4] dark:prose-pre:bg-[#1a1a1a] prose-pre:text-black dark:prose-pre:text-white
+                prose-a:text-primary [&_pre]:!opacity-100 [&_code]:!opacity-100">
+               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content}
               </ReactMarkdown>
             </div>
-            <SourcesList sources={message.sources} />
+            <div className="mt-4 border-t border-black/5 dark:border-white/10 pt-3">
+               <SourcesList sources={message.sources} />
+            </div>
             <div className="-ml-1">
                <CopyButton content={message.content} />
             </div>
